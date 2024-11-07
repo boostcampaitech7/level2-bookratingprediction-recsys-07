@@ -44,6 +44,9 @@ class FeaturesEmbedding(nn.Module):
         
     def forward(self, x: torch.Tensor):
         x = x + x.new_tensor(self.offsets).unsqueeze(0)
+        
+        return torch.sum(self.fc(x), dim=1) + self.bias if hasattr(self, 'bias') \
+               else torch.sum(self.fc(x), dim=1)
 
 class CrossNetwork(nn.Module):
     def __init__(self, input_dim: int, num_layers: int):

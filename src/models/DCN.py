@@ -45,8 +45,7 @@ class FeaturesEmbedding(nn.Module):
     def forward(self, x: torch.Tensor):
         x = x + x.new_tensor(self.offsets).unsqueeze(0)
         
-        return torch.sum(self.fc(x), dim=1) + self.bias if hasattr(self, 'bias') \
-               else torch.sum(self.fc(x), dim=1)
+        return self.embedding(x)
 
 class CrossNetwork(nn.Module):
     def __init__(self, input_dim: int, num_layers: int):
@@ -55,12 +54,12 @@ class CrossNetwork(nn.Module):
         
         self.w = nn.ModuleList([nn.Linear(input_dim, 1, bias=False) for _ in range(num_layers)])
         
-        self.b = nn.ModuleList([nn.Parameter(torch.empty((input_dim,))) for _ in range(num_layers)])
+        self.b = nn.ParameterList([nn.Parameter(torch.empty((input_dim,))) for _ in range(num_layers)])
 
         for m in self.modules():
             if isinstance(m, nn.Linear):
                 nn.init.xavier_uniform_(m.weight.data) #tensor를 xavier 초기값으로
-            if isinstance(m, nn.parameter):
+            if isinstance(m, nn.Parameter):
                 nn.init.constant_(m.bias.data, 0) #tensor를 val값으로 채운다.
 
     def forward(self, x: torch.Tensor):
@@ -74,7 +73,7 @@ class DeepCrossNetwork(nn.Module):
     def __init__(self, args, data):
         super().__init__()
         self.field_dims = data['field_dims']
-        self.embedding = FeaturesEmbedding(self.field_dims)
+        self.embedding = FeaturesEmbedding(self.field_dims, args.embed_dim)
         self.embed_output_dim = len(self.field_dims) * args.embed_dim
         self.cross_network = CrossNetwork(self.embed_output_dim, args.cross_layer_num)
         self.mlp = MLP_Base(self.embed_output_dim, args.mlp_dims, args.batchnorm, args.dropout)

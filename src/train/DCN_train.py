@@ -37,7 +37,7 @@ def seed_everything(seed):
     np.random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
-    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.deterministic = False
 
 
 def train_DCN(args):
@@ -47,6 +47,9 @@ def train_DCN(args):
     
     print(f'-------------- LOAD DATA ---------------')
     data = pre_context_data(args.filepath)
+    
+    assert not data['train'].isnull().values.any(), "Train data contains NaN values."
+    assert not data['test'].isnull().values.any(), "Test data contains NaN values."
     
     print(f'-------------- Train/Valid Split ---------------')
     if args.ratio > 0:
@@ -87,6 +90,7 @@ def train_DCN(args):
             y_pred = model(X_batch)
             loss = criterion(y_pred, y_batch.float())
             loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
             optimizer.step()
 
             total_train_loss += loss.item() * X_batch.size(0)
@@ -124,6 +128,7 @@ def train_DCN(args):
             y_pred = model(X_batch)
             loss = criterion(y_pred, y_batch.float())
             loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
             optimizer.step()
             total_train_loss += loss.item() * X_batch.size(0)
 
@@ -169,11 +174,11 @@ if __name__ == "__main__":
     args.lr = args.lr if args.lr is not None else 0.005
     args.cross_layer_num = args.cross_layer_num if args.cross_layer_num is not None else 3
     args.mlp_dims = args.mlp_dims if args.mlp_dims is not None else [16, 32]
-    args.embed_dim = args.embed_dim if args.embed_dim is not None else 16
+    args.embed_dim = args.embed_dim if args.embed_dim is not None else 6
     args.batchnorm = args.batchnorm if args.batchnorm is not None else True
     args.dropout = args.dropout if args.dropout is not None else 0.2
-    args.batch_size = args.batch_size if args.batch_size is not None else 128
-    args.epochs = args.epochs if args.epochs is not None else 30
+    args.batch_size = args.batch_size if args.batch_size is not None else 1024
+    args.epochs = args.epochs if args.epochs is not None else 20
     
     print(f"args: {args}")
     

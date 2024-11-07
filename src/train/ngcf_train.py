@@ -2,6 +2,7 @@ import argparse
 import os
 import sys
 
+import numpy as np
 import pandas as pd
 import torch
 from sklearn.model_selection import train_test_split
@@ -128,6 +129,8 @@ def main(dir_path, args):
         train_losses.append(train_loss)
 
         # Val
+        gt_ratings_list = []
+        pred_ratings_list = []
         val_loss = 0.0
         model.eval()
         with torch.no_grad():
@@ -142,10 +145,18 @@ def main(dir_path, args):
                 loss = torch.sqrt(loss)
                 val_loss += loss.item()
 
+                # RMSE 계산을 위해 실제 값과 예측 값 저장
+                gt_ratings_list.extend(gt_ratings.cpu().numpy())
+                pred_ratings_list.extend(pred_ratings.cpu().numpy())
+
         val_loss /= len(val_dataloader)
         valid_losses.append(val_loss)
 
-        print(f"Epoch:{epoch}/{args.num_epochs} \t Train loss: {train_loss:.4f}\t Val loss: {val_loss:4f}")
+        # RMSE 계산
+        val_rmse = np.sqrt(np.mean((np.array(gt_ratings_list) - np.array(pred_ratings_list)) ** 2))
+
+        print(f"[{epoch}/{args.num_epochs}]: ", end=" ")
+        print(f"Train loss: {train_loss:.4f}\t Val loss: {val_loss:4f}\t Val RMSE: {val_rmse:4f}")
 
         # Save best model
         if best_loss > val_loss:
@@ -223,7 +234,7 @@ if __name__ == "__main__":
     args.save_path = "weights"
     args.latent_dim = 64
     args.batch_size = 256
-    args.num_epochs = 3
+    args.num_epochs = 200
     args.lr = 0.00001
 
     print(f"args: {args}")

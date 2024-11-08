@@ -248,6 +248,9 @@ Temporary Items
 # ETC
 data
 analysis
+weights
+*.jpg
+data.tar.gz
 *.csv
 *.ipynb
 *.html

@@ -1,8 +1,6 @@
 # Book Rating Prediction
 ## 사용자의 책 평점 데이터를 바탕으로 사용자가 어떤 책을 더 선호할지 예측하는 태스크
 
-딥러닝 모델을 활용하여 책평점 예측 모델
-
 
 
 <br/>
@@ -55,7 +53,7 @@
   RMSE=\sqrt{\frac{1}{n}\sum_{i=1}^{n}(y_i-\hat{y}_i)^2}
   $$
   
-   $$
+  $$
   n : 데이터 개수, \\ \\  y_i : 레이팅 실제값, \\ \\ \hat{y}_i : 레이팅 예측값
   $$
 
@@ -84,10 +82,21 @@
 
 
 
+<br/>
+
+### Install
+
+python version: 3.9x
+
+```
+pip install -r requirements.txt
+```
+
+
 
 <br/>
 
-### Model
+### 코드 및 설명
 
 - Fm & FFm
   - FM.py/FFM.py: FM/FFM 모델을 위한 데이터 전처리와 train dataset으로 validation하는 코드입니다.
@@ -105,15 +114,27 @@
   - DCN_train.py: DCN 모델을 학습하고 평가하며 최종적으로 예측 결과를 제출 파일로 저장하는 코드 (DCN model을 실행시키는 코드).
   - DCN_dataset.py: 데이터를 전처리하여 DCN 모델 학습에 적합한 형식으로 변환.
   - DCN.py: Deep Cross Network 모델 구조를 정의하고 구현된 코드.
-- NGCF: ngcf_train.py을 통해 ngcf 모델을 학습하는 파일입니다.
+- NGCF
+  - ngcf_models.py: NGCF 모델 코드입니다.
+  - ngcf_dataset.py: NGCF 모델 학습을 위한 데이터셋 코드 입니다.
+  - ngcf_train.py: ngcf 모델을 학습 및 테스트하는 코드입니다.
+
 - NCF: ncf_train.py을 통해 ncf model을 train 하는 파일입니다.
   - ncf_dataset.py : data 로드 후 정수형 인덱스 변환 코드입니다
   - ncf_model.py : ncf, neumf 모델을 정의한 코드입니다.
   - ncf_train.py : 모델 train 하는 코드입니다.
 
+
+
 <br/>
+
+### 최종 제출 결과
 
 | Model      | validation RMSE | 리더보드 RMSE |
 | ---------- | -------------- | ------------ |
 | DeepFm   | 2.2102          | 2.20         |
 | Wide & Deep    | 2.3841           | 2.19         |
+
+
+
+<br/>
